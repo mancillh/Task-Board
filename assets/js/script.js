@@ -1,10 +1,25 @@
+const taskFormEl = $('#task-form');
+const taskNameInputEl = $('#project-name-input');
+const taskTypeInputEl = $('#project-type-input');
+const taskDateInputEl = $('#taskDueDate');
+
 // Retrieve tasks and nextId from localStorage
 let taskList = JSON.parse(localStorage.getItem("tasks"));
 let nextId = JSON.parse(localStorage.getItem("nextId"));
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
-
+  const taskName = taskNameInputEl.val().trim();
+  const taskType = taskTypeInputEl.val(); // don't need to trim select input
+  const taskDate = taskDateInputEl.val(); // yyyy-mm-dd format
+  
+  const taskId = {
+    // ? Here we use a Web API called `crypto` to generate a random id for our project. This is a unique identifier that we can use to find the project in the array. `crypto` is a built-in module that we can use in the browser and Nodejs.    id: crypto.randomUUID(),
+    name: taskName,
+    type: taskType,
+    dueDate: taskDate,
+    status: 'to-do',
+  };
 }
 
 // Todo: create a function to create a task card
