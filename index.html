@@ -40,19 +40,21 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <form id="task-form">
         <div class="row">
           <div class="col">
             <label>Task Title</label>
-            <input type="text" class="form-control" aria-label="First name">
+            <input type="text" id=task-title-input class="form-control" aria-label="First name">
           </div>
           <div class="col">
             <label>Task Due Date</label>
-            <input type="text" class="form-control" aria-label="Last name">
+            <input type="text" id=task-due-date class="form-control" aria-label="Last name">
           </div>
           <div class="col-12">
             <label>Task Description</label>
-            <textarea type="text" class="form-control" aria-label="Last name"></textarea>
+            <textarea type="text" id=task-description-input class="form-control" aria-label="Last name"></textarea>
           </div>
+        </form>
         </div>
       </div>
       <div class="modal-footer">
