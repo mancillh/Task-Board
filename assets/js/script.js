@@ -1,6 +1,6 @@
 const taskFormEl = $('#task-form');
 const taskTitleInputEl = $('#task-title-input');
-const taskDateInputEl = $('#task-due-date');
+const taskDateInputEl = $('#datepicker');
 const taskDescriptionInputEl = $('#task-description-input');
 
 // Reads tasks from local storage and returns array of task objects.
@@ -24,9 +24,6 @@ function saveTasksToStorage(tasks) {
 
 // function to generate a unique task id
 function generateTaskId() {
-  const taskTitle = taskTitleInputEl.val().trim();
-  const taskDate = taskDateInputEl.val(); // yyyy-mm-dd format
-  const taskDescription = taskDescriptionInputEl.val(); 
   
   const task = {
     // uses a Web API called `crypto` to generate a random id for tasks. 
@@ -37,6 +34,21 @@ function generateTaskId() {
     status: 'to-do',
   };
 }
+
+// Pull the tasks from localStorage and push the new task to the array
+const tasks = readTasksFromStorage();
+tasks.push(task);
+
+// Save the updated tasks array to localStorage
+saveTasksToStorage(tasks);
+
+// Print task data back to the screen
+printTaskData();
+
+// Clear the form inputs
+  taskTitleInputEl.val('');
+  taskDateInputEl.val('');
+  taskDescriptionInputEl.val('');
 
 // function to create a task card
 function createTaskCard(task) {
@@ -52,8 +64,15 @@ function createTaskCard(task) {
     .text('Delete')
     .attr('data-task-id', task.id);
   cardDeleteBtn.on('click', handleDeleteProject);
-}
 
+  // Gather all the elements created above and append them to the correct elements.
+  cardBody.append(cardDescription, cardDueDate, cardDeleteBtn);
+  taskCard.append(cardHeader, cardBody);
+      
+  // Return the card so it can be appended to the correct lane.
+  return taskCard;
+}
+          
   // Sets the card background color based on due date. Only apply the styles if the dueDate exists and the status is not done.
   if (task.dueDate && task.status !== 'done') {
     const now = dayjs();
@@ -70,58 +89,68 @@ function createTaskCard(task) {
 
 // function to render the task list and make cards draggable
 function renderTaskList() {
-    function printTaskData() {
-        const tasks = readTasksFromStorage();
+  function printTaskData() {
+    const tasks = readTasksFromStorage();
       
-        // ? Empty existing task cards out of the lanes
-        const todoList = $('#todo-cards');
-        todoList.empty();
+    // Empty existing task cards out of the lanes
+    const todoList = $('#todo-cards');
+    todoList.empty();
       
-        const inProgressList = $('#in-progress-cards');
-        inProgressList.empty();
+    const inProgressList = $('#in-progress-cards');
+    inProgressList.empty();
       
-        const doneList = $('#done-cards');
-        doneList.empty();
+    const doneList = $('#done-cards');
+    doneList.empty();
       
-        // ? Loop through tasks and create task cards for each status
-        for (let task of tasks) {
-          if (task.status === 'to-do') {
-            todoList.append(createTaskCard(task));
-          } else if (task.status === 'in-progress') {
-            inProgressList.append(createTaskCard(task));
-          } else if (task.status === 'done') {
-            doneList.append(createTaskCard(task));
-          }
-        }
-      
-        // Use JQuery UI to make task cards draggable
-        $('.draggable').draggable({
-          opacity: 0.7,
-          zIndex: 100,
-          // This is the function that creates the clone of the card that is dragged. This is purely visual and does not affect the data.
-          helper: function (e) {
-            // Check if the target of the drag event is the card itself or a child element. If it is the card itself, clone it, otherwise find the parent card  that is draggable and clone that.
-            const original = $(e.target).hasClass('ui-draggable')
-              ? $(e.target)
-              : $(e.target).closest('.ui-draggable');
-            // ? Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
-            return original.clone().css({
-              width: original.outerWidth(),
-            });
-          },
+    // Loop through tasks and create task cards for each status
+    for (let task of tasks) {
+      if (task.status === 'to-do') {
+        todoList.append(createTaskCard(task));
+      } else if (task.status === 'in-progress') {
+        inProgressList.append(createTaskCard(task));
+      } else if (task.status === 'done') {
+        doneList.append(createTaskCard(task));
+      }
+    };
+  }  
+};
+
+    // Use JQuery UI to make task cards draggable
+    $('.draggable').draggable({
+      opacity: 0.7,
+      zIndex: 100,
+    // This is the function that creates the clone of the card that is dragged. This is purely visual and does not affect the data.
+      helper: function (e) {
+    // Check if the target of the drag event is the card itself or a child element. If it is the card itself, clone it, otherwise find the parent card  that is draggable and clone that.
+      const original = $(e.target).hasClass('ui-draggable')
+        ? $(e.target)
+        : $(e.target).closest('.ui-draggable');
+    // Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
+        return original.clone().css({
+          width: original.outerWidth(),
         });
       }
-}
+    });
 
 // function to handle adding a new task
 function handleAddTask(event){
-// Add event listener to the form element, listen for a submit event, and call the `handleTaskFormSubmit` function.
-taskFormEl.on('submit', handleTaskFormSubmit);
+  event.preventDefault();
+
+// read user input from form  
+  const taskTitle = taskTitleInputEl.val().trim();
+  const taskDate = taskDateInputEl.val(); // yyyy-mm-dd format
+  const taskDescription = taskDescriptionInputEl.val(); 
+
+// Add event listener to the form element, listen for a submit event, and call the `handleAddTask` function.
+  taskFormEl.on('submit', handleAddTask);
 }
 
 // function to handle deleting a task
 function handleDeleteTask(event){
+  const taskId = $(this).attr('data-task-id');
+  const tasks = readTasksFromStorage();
   taskDisplayEl.on('click', '.btn-delete-project', handleDeleteTask);
+  
 }
 
 // function to handle dropping a task into a new status lane
