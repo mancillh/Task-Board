@@ -1,18 +1,19 @@
 const taskFormEl = $('#task-form');
+const taskDisplayEl = $('#task-display');
 const taskTitleInputEl = $('#task-title-input');
-const taskDateInputEl = $('#datepicker');
+const taskDateInputEl = $('#task-date-input');
 const taskDescriptionInputEl = $('#task-description-input');
 
 // Reads tasks from local storage and returns array of task objects.
 // If there are no tasks in localStorage, it initializes an empty array ([]) and returns it.
 function readTasksFromStorage() {
   let tasks = JSON.parse(localStorage.getItem('tasks'));
-
+  
   // If no tasks were retrieved from localStorage, assign tasks to a new empty array to push to later.
   if (!tasks) {
     tasks = [];
   }
-
+  
   // Return the tasks array either empty or with data in it 
   return tasks;
 }
@@ -21,34 +22,6 @@ function readTasksFromStorage() {
 function saveTasksToStorage(tasks) {
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
-
-// function to generate a unique task id
-function generateTaskId() {
-  
-  const task = {
-    // uses a Web API called `crypto` to generate a random id for tasks. 
-    id: crypto.randomUUID(),
-    title: taskTitle,
-    dueDate: taskDate,
-    description: taskDescription,
-    status: 'to-do',
-  };
-}
-
-// Pull the tasks from localStorage and push the new task to the array
-const tasks = readTasksFromStorage();
-tasks.push(task);
-
-// Save the updated tasks array to localStorage
-saveTasksToStorage(tasks);
-
-// Print task data back to the screen
-printTaskData();
-
-// Clear the form inputs
-  taskTitleInputEl.val('');
-  taskDateInputEl.val('');
-  taskDescriptionInputEl.val('');
 
 // function to create a task card
 function createTaskCard(task) {
@@ -63,7 +36,21 @@ function createTaskCard(task) {
     .addClass('btn btn-danger delete')
     .text('Delete')
     .attr('data-task-id', task.id);
-  cardDeleteBtn.on('click', handleDeleteProject);
+  cardDeleteBtn.on('click', handleDeleteTask);
+
+ // Sets the card background color based on due date. Only apply the styles if the dueDate exists and the status is not done.
+ if (task.dueDate && task.status !== 'done') {
+  const now = dayjs();
+  const taskDueDate = dayjs(task.dueDate, 'DD/MM/YYYY');
+
+  // If the task is due today, make the card yellow. If it is overdue, make it red.
+  if (now.isSame(taskDueDate, 'day')) {
+    taskCard.addClass('bg-warning text-white');
+  } else if (now.isAfter(taskDueDate)) {
+    taskCard.addClass('bg-danger text-white');
+    cardDeleteBtn.addClass('border-light');
+  }
+}
 
   // Gather all the elements created above and append them to the correct elements.
   cardBody.append(cardDescription, cardDueDate, cardDeleteBtn);
@@ -73,47 +60,30 @@ function createTaskCard(task) {
   return taskCard;
 }
           
-  // Sets the card background color based on due date. Only apply the styles if the dueDate exists and the status is not done.
-  if (task.dueDate && task.status !== 'done') {
-    const now = dayjs();
-    const taskDueDate = dayjs(task.dueDate, 'DD/MM/YYYY');
-
-    // If the task is due today, make the card yellow. If it is overdue, make it red.
-    if (now.isSame(taskDueDate, 'day')) {
-      taskCard.addClass('bg-warning text-white');
-    } else if (now.isAfter(taskDueDate)) {
-      taskCard.addClass('bg-danger text-white');
-      cardDeleteBtn.addClass('border-light');
-    }
-  }
-
 // function to render the task list and make cards draggable
-function renderTaskList() {
-  function printTaskData() {
-    const tasks = readTasksFromStorage();
+function renderTaskData() {
+  const tasks = readTasksFromStorage();
       
-    // Empty existing task cards out of the lanes
-    const todoList = $('#todo-cards');
-    todoList.empty();
+  // Empty existing task cards out of the lanes
+  const todoList = $('#todo-cards');
+  todoList.empty();
       
-    const inProgressList = $('#in-progress-cards');
-    inProgressList.empty();
+  const inProgressList = $('#in-progress-cards');
+  inProgressList.empty();
       
-    const doneList = $('#done-cards');
-    doneList.empty();
+  const doneList = $('#done-cards');
+  doneList.empty();
       
-    // Loop through tasks and create task cards for each status
-    for (let task of tasks) {
-      if (task.status === 'to-do') {
-        todoList.append(createTaskCard(task));
-      } else if (task.status === 'in-progress') {
-        inProgressList.append(createTaskCard(task));
-      } else if (task.status === 'done') {
-        doneList.append(createTaskCard(task));
-      }
-    };
-  }  
-};
+  // Loop through tasks and create task cards for each status
+  for (let task of tasks) {
+    if (task.status === 'to-do') {
+      todoList.append(createTaskCard(task));
+    } else if (task.status === 'in-progress') {
+      inProgressList.append(createTaskCard(task));
+    } else if (task.status === 'done') {
+      doneList.append(createTaskCard(task));
+    }
+  };
 
     // Use JQuery UI to make task cards draggable
     $('.draggable').draggable({
@@ -131,26 +101,63 @@ function renderTaskList() {
         });
       }
     });
+  }; 
 
 // function to handle adding a new task
-function handleAddTask(event){
+function handleAddTask(event) {
   event.preventDefault();
 
-// read user input from form  
+  // Read user input from form  
   const taskTitle = taskTitleInputEl.val().trim();
   const taskDate = taskDateInputEl.val(); // yyyy-mm-dd format
   const taskDescription = taskDescriptionInputEl.val(); 
 
+  const newTask = {
+    // uses a Web API called `crypto` to generate a random id for tasks. 
+    id: crypto.randomUUID(),
+    title: taskTitle,
+    dueDate: taskDate,
+    description: taskDescription,
+    status: 'to-do',
+  };
+
+  // Pull the tasks from localStorage and push the new task to the array
+  const tasks = readTasksFromStorage();
+  tasks.push(newTask);
+
+  // Save the updated tasks array to localStorage
+  saveTasksToStorage(tasks);
+
+  // Render task data back to the screen
+  renderTaskData();
+
+  // Clear the form inputs
+  taskTitleInputEl.val('');
+  taskDateInputEl.val('');
+  taskDescriptionInputEl.val('');
+};
+
 // Add event listener to the form element, listen for a submit event, and call the `handleAddTask` function.
-  taskFormEl.on('submit', handleAddTask);
-}
+taskFormEl.on('submit', handleAddTask);
 
 // function to handle deleting a task
-function handleDeleteTask(event){
+function handleDeleteTask() {
   const taskId = $(this).attr('data-task-id');
   const tasks = readTasksFromStorage();
-  taskDisplayEl.on('click', '.btn-delete-project', handleDeleteTask);
-  
+  taskDisplayEl.on('click', '.btn-delete-task', handleDeleteTask);
+
+  // Remove task from the array. 
+  tasks.forEach((task) => {
+    if (task.id === taskId) {
+      tasks.splice(tasks.indexOf(task), 1);
+    }
+  });
+
+  // Use helper function to save the tasks to localStorage
+  saveTasksToStorage(tasks);
+
+  // Render task data back to screen
+  renderTaskData();
 }
 
 // function to handle dropping a task into a new status lane
@@ -159,26 +166,26 @@ function handleDrop(event, ui) {
  const tasks = readTasksFromStorage();
 
  // Get the task id from the event
- const task = ui.draggable[0].dataset.task;
+ const otherId = ui.draggable[0].dataset.taskId;
 
  // Get the id of the lane that the card was dropped into
  const newStatus = event.target.id;
 
  for (let task of tasks) {
-   // Find the task card by the `id` and update the project status.
-   if (task.id === task) {
+   // Find the task card by the `id` and update the task status.
+   if (task.id === otherId) {
      task.status = newStatus;
    }
  }
- // Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
+ // Save the updated tasks array to localStorage (overwritting the previous one) and render the new task data to the screen.
  localStorage.setItem('tasks', JSON.stringify(tasks));
- printTaskData();
+ renderTaskData();
 }
 
 // when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
-  // Print task data to the screen on page load if there is any
-  printTaskData();
+  // Render task data to the screen on page load if there is any
+  renderTaskData();
 
   $('#taskDueDate').datepicker({
     changeMonth: true,
