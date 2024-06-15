@@ -1,11 +1,9 @@
 const taskFormEl = $('#task-form');
-const buttonToSubmitForm = $('#buttonToSubmitForm');
-const taskDisplayEl = $('#task-display');
+const taskCardEl = $('#card');
 const taskTitleInputEl = $('#task-title-input');
 const taskDateInputEl = $('#taskDueDate');
 const taskDescriptionInputEl = $('#task-description-input');
 
-console.log(dayjs());
 // Reads tasks from local storage and returns array of task objects.
 // If there are no tasks in localStorage, it initializes an empty array ([]) and returns it.
 function readTasksFromStorage() {
@@ -43,8 +41,7 @@ function createTaskCard(task) {
   // Sets the card background color based on due date. Only apply the styles if the due Date exists and the status is not done.
   if (task.dueDate && task.status !== 'done') {
     const now = dayjs();
-    console.log(now);
-    const taskDueDate = dayjs(task.dueDate, 'DD/MM/YYYY'); 
+    const taskDueDate = dayjs(task.dueDate).format('MM/DD/YYYY');
 
   // If the task is due today, make the card yellow. If it is overdue, make it red.
   if (now.isSame(taskDueDate, 'day')) {
@@ -117,6 +114,11 @@ function handleDeleteTask() {
       tasks.splice(tasks.indexOf(task), 1);
     }
   });
+  // ? We will use our helper function to save the projects to localStorage
+  saveTasksToStorage(tasks);
+
+  // ? Here we use our other function to print projects back to the screen
+  renderTaskData();
 };
 
 // Use helper function to save the tasks to localStorage
@@ -170,7 +172,7 @@ function handleDrop(event, ui) {
  
   // Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
- 
+  
   for (let task of tasks) {
     // Find the task card by the `id` and update the task status.
     if (task.id === otherId) {
@@ -183,7 +185,7 @@ function handleDrop(event, ui) {
  }
 
 // Listen for a click on the parent element, and THEN check if the target of the click is the delete button. If it is, we call the `handleDeleteProject` function
-taskDisplayEl.on('click', '.btn-delete-task', handleDeleteTask);
+//taskCardEl.on('click', cardDeleteBtn, handleDeleteTask);
 
 // when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
