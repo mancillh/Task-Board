@@ -7,7 +7,7 @@ When the user opens the task board, a list of project tasks is displayed in colu
 When the user drags a task to a different progress column, the task's progress state is updated accordingly and will stay in the new column after the user refreshes the page. When the user clicks the delete button for a task, the task is removed from the task board and will not be added back after the user refreshes the page.
 Additionally, the saved task list persists after refreshing the page.
 
-Link to deployed application:
+Link to deployed application: https://mancillh.github.io/Task-Board/
 
 Screenshots:
 ![Task Board Screenshot](assets/images/_C__Users_Hannah_bootcamp_Task-Board_index.html.png)
