@@ -89,13 +89,13 @@ function renderTaskData() {
     $('.draggable').draggable({
       opacity: 0.7,
       zIndex: 100,
-    // This is the function that creates the clone of the card that is dragged. This is purely visual and does not affect the data.
+    // Function that creates a clone of the card that is dragged. 
       helper: function (e) {
-    // Check if the target of the drag event is the card itself or a child element. If it is the card itself, clone it, otherwise find the parent card  that is draggable and clone that.
+    // Check if the target of the drag event is the card itself or a child element. If it is the card itself, clone it, otherwise find the parent card that is draggable and clone that.
       const original = $(e.target).hasClass('ui-draggable')
         ? $(e.target)
         : $(e.target).closest('.ui-draggable');
-    // Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
+    // Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. 
         return original.clone().css({
           width: original.outerWidth(),
         });
@@ -108,20 +108,20 @@ function handleDeleteTask() {
   const taskId = $(this).attr('data-task-id');
   const tasks = readTasksFromStorage();
   
-  // Remove task from the array. 
+  // remove task from the array
   tasks.forEach((task) => {
     if (task.id === taskId) {
       tasks.splice(tasks.indexOf(task), 1);
     }
   });
-  // ? We will use our helper function to save the projects to localStorage
+  // save tasks to localStorage
   saveTasksToStorage(tasks);
 
-  // ? Here we use our other function to print projects back to the screen
+  // render tasks to the screen
   renderTaskData();
 };
 
-// Use helper function to save the tasks to localStorage
+// save the tasks to localStorage
 let tasks = JSON.parse(localStorage.getItem('tasks'));  
 saveTasksToStorage(tasks);
  
@@ -183,9 +183,6 @@ function handleDrop(event, ui) {
   localStorage.setItem('tasks', JSON.stringify(tasks));
   renderTaskData();
  }
-
-// Listen for a click on the parent element, and THEN check if the target of the click is the delete button. If it is, we call the `handleDeleteProject` function
-//taskCardEl.on('click', cardDeleteBtn, handleDeleteTask);
 
 // when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {

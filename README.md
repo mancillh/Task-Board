@@ -10,6 +10,6 @@ Additionally, the saved task list persists after refreshing the page.
 Link to deployed application:
 
 Screenshots:
-![Task Board Screenshot](_C__Users_Hannah_bootcamp_Task-Board_index.html.png)
-![Modal Form Screenshot](<Task-Board modal form screenshot.JPG>)
-![Local Storage Screenshot](<Task-Board local storage screenshot.JPG>)
+![Task Board Screenshot](assets/images/_C__Users_Hannah_bootcamp_Task-Board_index.html.png)
+![Modal Form Screenshot](<assets/images/Task-Board modal form screenshot.JPG>)
+![Local Storage Screenshot](<assets/images/Task-Board local storage screenshot.JPG>)
